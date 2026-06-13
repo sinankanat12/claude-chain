@@ -5,18 +5,6 @@ import { logger } from './logger.js';
 const MAX_CONSECUTIVE_RETRIES = 3;
 
 function validateEnv(): void {
-  const missing: string[] = [];
-
-  if (!process.env.CLAUDE_CODE_OAUTH_TOKEN) {
-    missing.push('CLAUDE_CODE_OAUTH_TOKEN');
-  }
-
-  if (missing.length > 0) {
-    logger.fatal(`Zorunlu env var eksik: ${missing.join(', ')}`);
-    logger.fatal('Alım: claude setup-token → kopyala → Railway Variables tab\'a ekle');
-    process.exit(1);
-  }
-
   const pingIntervalMs = parseInt(process.env.PING_INTERVAL_MS ?? '17700000', 10);
   if (isNaN(pingIntervalMs) || pingIntervalMs < 60_000) {
     logger.fatal('PING_INTERVAL_MS geçersiz. Minimum 60000 (1 dakika).');

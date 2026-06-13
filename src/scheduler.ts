@@ -34,9 +34,11 @@ function isRateLimit(result: PingResult): boolean {
   return (
     lower.includes('rate limit') ||
     lower.includes('usage limit') ||
+    lower.includes('session limit') ||
     lower.includes('resets at') ||
     lower.includes('reset_at') ||
-    lower.includes('resets in')
+    lower.includes('resets in') ||
+    /resets\s+\d{1,2}:\d{2}/.test(lower)
   );
 }
 

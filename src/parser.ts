@@ -1,7 +1,7 @@
 export interface ParseResult {
   waitMs: number;
   resetTime: Date | null;
-  source: 'format-a' | 'format-b' | 'format-c' | 'format-d' | 'default';
+  source: 'format-a' | 'format-b' | 'format-c' | 'format-d' | 'format-e' | 'default';
 }
 
 const DEFAULT_WAIT_MS = 5 * 60 * 60 * 1000;
@@ -45,6 +45,16 @@ export function parseResetTime(output: string): ParseResult {
     const resetTime = nextOccurrenceLocal(h, m);
     const waitMs = Math.max(0, resetTime.getTime() - Date.now()) + buf;
     return { waitMs, resetTime, source: 'format-b' };
+  }
+
+  // Format E: "resets H:MM" (no "at"/"in", no AM/PM — bare time, local clock)
+  const fmtE = output.match(/resets\s+(\d{1,2}):(\d{2})(?!\s*(am|pm))/i);
+  if (fmtE) {
+    const h = parseInt(fmtE[1], 10);
+    const m = parseInt(fmtE[2], 10);
+    const resetTime = nextOccurrenceLocal(h, m);
+    const waitMs = Math.max(0, resetTime.getTime() - Date.now()) + buf;
+    return { waitMs, resetTime, source: 'format-e' };
   }
 
   // Format C: "resets in X hours Y minutes" (each part optional)

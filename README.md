@@ -1,48 +1,52 @@
 # claude-chain
 
-Chains Claude Code 5-hour usage windows automatically. Runs as a persistent Railway service.
+Claude Code 5 saatlik oturum pencerelerini otomatik olarak zincirler. Docker ile yerel makinede çalışır.
 
-## How it works
+## Nasıl çalışır
 
-1. Sends `claude --print "1"` every ~4h55m
-2. On rate limit: parses reset time from output, waits until reset + 5 min
-3. Logs every action with timestamps
+1. Her ~4s55dk'da bir `claude --print "1"` gönderir
+2. Rate/session limit gelince reset zamanını parse eder, reset + 5dk bekler
+3. Her işlemi timestamp ile loglar
 
-## Setup
+## Kurulum
 
-### 1. Get OAuth token
+### 1. OAuth token al
 
 ```bash
 claude setup-token
 ```
 
-Copy the token output.
-
-### 2. Deploy to Railway
-
-1. New Project → Deploy from GitHub repo → select this repo
-2. Variables tab → add `CLAUDE_CODE_OAUTH_TOKEN=<token from step 1>`
-3. Deploy
-
-### 3. Verify
+### 2. .env dosyası oluştur
 
 ```bash
-railway logs
+cp .env.example .env
+# CLAUDE_CODE_OAUTH_TOKEN değerini doldur
 ```
 
-You should see ping lines every ~4h55m.
+### 3. Docker ile çalıştır
+
+```bash
+docker build -t claude-chain .
+docker run -d --env-file .env --name claude-chain claude-chain
+```
+
+### 4. Logları izle
+
+```bash
+docker logs -f claude-chain
+```
 
 ## Environment Variables
 
-| Variable | Required | Default | Description |
+| Değişken | Zorunlu | Varsayılan | Açıklama |
 |---|---|---|---|
-| `CLAUDE_CODE_OAUTH_TOKEN` | ✅ | — | From `claude setup-token` |
-| `PING_INTERVAL_MS` | ❌ | `17700000` | Ping frequency (4h55m) |
-| `RESET_BUFFER_MS` | ❌ | `300000` | Buffer after reset (5m) |
-| `PING_MESSAGE` | ❌ | `"1"` | Message sent to Claude |
-| `LOG_LEVEL` | ❌ | `INFO` | Log verbosity |
+| `CLAUDE_CODE_OAUTH_TOKEN` | ✅ | — | `claude setup-token` çıktısı |
+| `PING_INTERVAL_MS` | ❌ | `17700000` | Ping sıklığı (4s55dk) |
+| `RESET_BUFFER_MS` | ❌ | `300000` | Reset sonrası bekleme (5dk) |
+| `PING_MESSAGE` | ❌ | `"1"` | Claude'a gönderilen mesaj |
+| `LOG_LEVEL` | ❌ | `INFO` | Log seviyesi |
 
-## Log format
+## Log formatı
 
 ```
 [2026-06-11 22:05:01] [INFO ] Ping gönderiliyor...

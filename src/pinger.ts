@@ -14,6 +14,7 @@ export async function ping(): Promise<PingResult> {
   return new Promise((resolve) => {
     const proc = spawn('claude', ['--print', message], {
       env: process.env,
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
 
     let output = '';
